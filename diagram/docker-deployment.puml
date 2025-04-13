@@ -1,0 +1,39 @@
+@startuml Docker Deployment
+
+!define RECTANGLE class
+
+node "Docker Host" {
+    cloud "Docker Network: event-net" {
+        node "Zookeeper" {
+            [Zookeeper Container\nPort: 2181]
+        }
+
+        node "Kafka" {
+            [Kafka Container\nPort: 9092]
+        }
+
+        node "PostgreSQL" {
+            [PostgreSQL Container\nPort: 5432]
+        }
+
+        node "Producer Service" {
+            [Producer Container\nPort: 8080]
+        }
+
+        node "Consumer Service" {
+            [Consumer Container\nPort: 8081]
+        }
+
+        node "Alerting Service" {
+            [Alerting Container\nPort: 8082]
+        }
+    }
+}
+
+[Producer Container\nPort: 8080] --> [Kafka Container\nPort: 9092] : Publishes Events
+[Kafka Container\nPort: 9092] --> [Consumer Container\nPort: 8081] : Subscribes
+[Consumer Container\nPort: 8081] --> [PostgreSQL Container\nPort: 5432] : Persists Data
+[Kafka Container\nPort: 9092] --> [Alerting Container\nPort: 8082] : Subscribes
+[Kafka Container\nPort: 9092] --> [Zookeeper Container\nPort: 2181] : Coordination
+
+@enduml

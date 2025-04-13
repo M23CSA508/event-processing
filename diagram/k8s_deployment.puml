@@ -1,0 +1,43 @@
+@startuml Kubernetes Deployment
+
+!define RECTANGLE class
+
+package "Kubernetes Cluster" {
+    node "Namespace: event-system" {
+
+        node "Zookeeper" {
+            [Zookeeper Deployment + Service]
+        }
+
+        node "Kafka" {
+            [Kafka Deployment + Service]
+        }
+
+        node "PostgreSQL" {
+            [PostgreSQL Deployment + Service]
+        }
+
+        node "Producer" {
+            [Producer Deployment + Service\n+ HPA]
+        }
+
+        node "Consumer" {
+            [Consumer Deployment + Service\n+ HPA]
+        }
+
+        node "Alerting" {
+            [Alerting Deployment + Service\n+ HPA]
+        }
+
+        queue "Port Forward\n8080" as PortForward
+    }
+}
+
+[Kafka Deployment + Service] --> [Zookeeper Deployment + Service] : Coordination
+[Producer Deployment + Service\n+ HPA] --> [Kafka Deployment + Service] : Publishes Events
+[Kafka Deployment + Service] --> [Consumer Deployment + Service\n+ HPA] : Subscribes
+[Consumer Deployment + Service\n+ HPA] --> [PostgreSQL Deployment + Service] : Stores Events
+[Kafka Deployment + Service] --> [Alerting Deployment + Service\n+ HPA] : Subscribes
+[Alerting Deployment + Service\n+ HPA] --> PortForward : Exposed via Port 8080
+
+@enduml
