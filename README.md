@@ -12,6 +12,54 @@ Large-scale applications often process millions of events per second (e.g., IoT 
 
 This system is designed with scalability, modularity, and performance in mind—ideal for event-driven architectures operating at scale.
 
+### Key Cloud Design Considerations
+- OCI API Gateway fronts your producer API securely and scalably.
+- OKE (Kubernetes Engine) runs your microservices (producer, consumer).
+- OCI Streaming acts as the event bus (Kafka-compatible).
+- OCI Function listens for alert-worthy events and logs alerts serverlessly.
+- OCI Autonomous DB stores persistent event data.
+- OCI Monitoring & Logging captures observability across services.
+
+## Local Deployment Due to OCI Free Tier Limitations
+### Background
+The project was originally designed to leverage Oracle Cloud Infrastructure (OCI) components for a scalable, cloud-native, event-driven architecture. The goal was to use OCI Streaming (Kafka-compatible), OCI Functions, and OKE (Oracle Kubernetes Engine) for seamless deployment and processing. However, due to resource limitations on the OCI Free Tier, the team encountered constraints that prevented successful deployment on OCI.
+
+### OCI Service Constraints on Free Tier
+| OCI Component	| Intended Role	| Free Tier Limitation |
+|----------------|---------------|-----------------------|
+| OCI Streaming |	Kafka-compatible event stream backbone	| Not available in free tier |
+| OCI Functions	| Stateless alerting function (Java)	| Not available in free tier |
+| OKE	| Container orchestration (for services)	| Free tier does not support OKE usage |
+
+### Workaround: Local Deployment Strategy
+Due to the above limitations, we pivoted to a local environment setup that simulates the intended OCI-based architecture.
+
+#### Local Setup Details
+|Component	| Technology Used |
+|----------------|---------------|
+|Producer Service	| Java Spring Boot + KafkaTemplate |
+|Kafka Broker	| Dockerized Apache Kafka (Local) |
+|Consumer Service |	Java Spring Boot + KafkaListener |
+|Alerting Service	| Java Spring Boot (runs locally, mimics OCI Function)|
+|Database	|PostgreSQL running in Docker|
+|Monitoring & Logs|	STDOUT logs + local log files|
+|OKE | Local Kubernetes| 
+
+#### Architecture Adjustments
+- OCI Streaming was replaced with a Docker-based Kafka setup.
+- OCI Function was simulated using a simple Spring Boot service that listens to events and performs alerting logic.
+- OCI OKE was replaced with Docker Compose to orchestrate services in a local network.
+- REST endpoints were tested using tools like curl and Postman for local API interactions.
+
+#### If Paid Services are available 
+We will do the following 
+- Replace Docker Kafka with OCI Streaming.
+- Replace local AlertingService with OCI Function triggered via Streaming Triggers
+- Deploy services to OKE, and use OCI API Gateway for routing.
+- Integrate with OCI Logging and Monitoring for production observability.
+
+#### Planned OCI deployment 
+![OCI Deployment](./diagram/images/OCI_Version.png) 
 
 ## Project Structure
 
@@ -23,8 +71,14 @@ event-processing/
 ├── k8s/                     # Kubernetes deployment files
 ├── run-all.sh               # Script to deploy all services
 ```
+## Architechture Diagram 
+![Architechture Diagram](./diagram/images/Architecture.png) 
+
+## Sequence Diagram 
+![Sequence Diagram](./diagram/images/Sequence.png) 
 
 ## Getting Started
+
 
 ### Prerequisites
 
