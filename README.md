@@ -34,6 +34,7 @@ Make sure the following tools are installed:
 - Kubernetes 
 - Maven
 - Java 17+
+- Curl 
 
 ### Step-by-Step Deployment Guide
 
@@ -54,7 +55,7 @@ mvn clean install
 docker build -t producer-service:latest .
 
 cd ../consumer-service
-mvn clean install
+mvn clean install -Dspring.profiles.active=test
 docker build -t consumer-service:latest .
 
 cd ../alerting-service
@@ -286,10 +287,6 @@ You should see logs from the services interacting with Kafka.
      ```bash
      kubectl get endpoints -n event-system
      ```
-   - Test connectivity from within the cluster:
-     ```bash
-     kubectl exec -it $(kubectl get pod -l app=producer-service -n event-system -o jsonpath='{.items[0].metadata.name}') -n event-system -- curl -v telnet://kafka-service:9092
-     ```
 
 6. **HPA Issues**
    - Check HPA status:
@@ -336,10 +333,16 @@ curl -X POST http://<node-id>:<nodeport>/publish -H "Content-Type: application/j
 
 Expected:
 - `consumer-service` logs the event to DB
+   ```bash 
+  kubectl exec -it $(kubectl get pod -l app=postgres -n event-system -o jsonpath='{.items[0].metadata.name}') -n event-system -- psql -U postgres -d eventdb -c "SELECT * FROM EVENTS"
+  ```
 - `alerting-service` prints alert to console
+   ```bash
+  kubectl logs -l app=alerting-service  -n event-system
+  ```
 
 ## Notes
-- This is a simulation of OCI Functions using sidecar microservices.
+- This is a simulation of Oracle Cloud Infrastructure (OCI) Functions using sidecar microservices.As OCI Functions, Steams and OCI Kubernetes Engine (OKE) is not available in free version. 
 - Kafka setup uses Bitnami images.
 - Recommended for dev/testing environments.
   

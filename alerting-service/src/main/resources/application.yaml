@@ -3,6 +3,8 @@ spring:
     name: alerting-service
   kafka:
     bootstrap-servers: kafka:9092
+    listener:
+      auto-startup: true
     consumer:
       group-id: alerting-service
       auto-offset-reset: earliest

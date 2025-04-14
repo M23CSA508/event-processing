@@ -5,8 +5,14 @@ set -e
 echo " Cleaning up previous containers (if any)..."
 docker rm -f zookeeper kafka postgres producer-service consumer-service alerting-service 2>/dev/null || true
 
-echo " Create a shared network "
-docker network create event-net || true
+echo " Checking if 'event-net' network exists..."
+
+if docker network ls --format '{{.Name}}' | grep -q "^event-net$"; then
+  echo " 'event-net' already exists. Skipping creation."
+else
+  echo " Creating Docker network 'event-net'..."
+  docker network create event-net
+fi
 
 echo " Starting Zookeeper..."
 docker run -d --name zookeeper --network event-net -p 2181:2181 \
@@ -16,7 +22,7 @@ docker run -d --name zookeeper --network event-net -p 2181:2181 \
 
 
 # Wait until Zookeeper is healthy or responding on port 2181
-echo " Waiting for Zookeeper to become ready..."
+echo -e "\033[1;35m Waiting for Zookeeper to become ready...\033[0m"
 while ! nc -z localhost 2181; do
   sleep 1
 done
@@ -31,7 +37,7 @@ docker run -d --name kafka --network event-net -p 9092:9092 \
   -e ALLOW_PLAINTEXT_LISTENER=yes \
   bitnami/kafka:3.5
 
-echo " Waiting for Kafka to be reachable on port 9092..."
+echo -e "\033[1;35m Waiting for Kafka to be reachable on port 9092...\033[0m"
 while ! nc -z localhost 9092; do
   sleep 1
 done
@@ -44,15 +50,15 @@ docker run -d --name postgres --network event-net -p 5432:5432 \
   -e POSTGRES_PASSWORD=pass \
   postgres:14
 
-echo " Waiting 10 seconds for Kafka & Postgres to initialize..."
+echo -e "\033[1;35m Waiting 10 seconds for Kafka & Postgres to initialize..."
 sleep 10
 
 echo " Building Docker images..."
-cd producer-service && docker build -t producer-service:latest . && cd ..
-cd consumer-service && docker build -t consumer-service:latest . && cd ..
-cd alerting-service && docker build -t alerting-service:latest . && cd ..
+cd producer-service && mvn clean install && docker build -t producer-service:latest . && cd ..
+cd consumer-service && mvn clean install -Dspring.profiles.active=test && docker build -t consumer-service:latest . && cd ..
+cd alerting-service && mvn clean install && docker build -t alerting-service:latest . && cd ..
 
-echo " Running Publisher Service..."
+echo " Running Producer Service..."
 docker run -d --name producer-service --network event-net -p 8080:8080 --link kafka producer-service:latest
 
 echo " Running Consumer Service..."
@@ -63,5 +69,5 @@ docker run -d --name alerting-service --network event-net -p 8082:8082 --link ka
 
 echo " All services are up and running!"
 echo " Test publishing using the below command"
-echo " curl -X POST http://localhost:8080/publish -H 'Content-Type: application/json' -d '{\"type\":\"TEMP\",\"value\":\"ALERT:90\"}'"
+echo -e "\033[0;32m curl -X POST http://localhost:8080/publish -H 'Content-Type: application/json' -d '{\"type\":\"TEMP\",\"value\":\"ALERT:90\"}' \033[0m"
 
