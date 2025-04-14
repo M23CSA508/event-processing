@@ -161,6 +161,9 @@ The script performs the following actions:
      ```
    - Check for Docker build errors in the console output.
 
+#### Docker Deployment 
+![Docker Deployment](./diagram/images/Docker_Deployment.png)
+
 --------------
 #### 5. Deploy Using Kubernetes
 
@@ -311,6 +314,9 @@ You should see logs from the services interacting with Kafka.
      ```bash
      kubectl port-forward deployment/producer-deployment 8080:8080 -n event-system
      ```
+
+#### Kubernetes Deployment 
+![Kubernetes Deployment](./diagram/images/Kubernetes_Deployment.png)
 
 ## Services Overview
 
