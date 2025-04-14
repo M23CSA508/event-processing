@@ -1,0 +1,21 @@
+@startuml
+allowmixing
+skinparam style strictuml
+
+rectangle "OCI API Gateway" as APIGW
+rectangle "OKE: Producer Service" as Producer
+rectangle "OCI Streaming (Kafka)" as Kafka
+rectangle "OKE: Consumer Service" as Consumer
+rectangle "OCI Function: AlertingFunction" as FnAlert
+database "OCI Autonomous DB" as DB
+cloud "OCI Monitoring / Logging" as Observability
+
+APIGW --> Producer : HTTP POST /publish\n(event)
+Producer --> Kafka : Publish to "event-stream"
+Kafka --> Consumer : Consume from "event-stream"
+Kafka --> FnAlert : Trigger function\nif event contains "ALERT"
+Consumer --> DB : Persist Event
+Consumer --> Observability : Custom Metrics\nand Logs
+FnAlert --> Observability : Alert Logs
+
+@enduml

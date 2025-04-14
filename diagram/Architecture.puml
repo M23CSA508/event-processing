@@ -1,0 +1,30 @@
+@startuml
+' Enable mixed diagram elements
+allowmixing
+skinparam style strictuml
+
+class "Producer Service" as Producer {
+    + REST API: /publish
+    + KafkaTemplate
+}
+
+rectangle "Kafka Broker" as Kafka
+
+class "Consumer Service" as Consumer {
+    + @KafkaListener(topic="event-stream")
+    + EventRepository
+}
+
+class "Alerting Service" as Alerting {
+    + @KafkaListener(topic="event-stream")
+    + Log Alert
+}
+
+database "Event DB" as Database
+
+Producer --> Kafka : sends events\n(topic = "event-stream")
+Kafka --> Consumer : pushes events
+Kafka --> Alerting : pushes events
+Consumer --> Database : stores Event
+
+@enduml

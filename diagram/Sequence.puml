@@ -1,0 +1,22 @@
+@startuml
+actor User
+participant "Producer Service" as Producer
+participant "Kafka Broker" as Kafka
+participant "Consumer Service" as Consumer
+participant "Alerting Service" as Alerting
+database "Event DB" as DB
+
+User -> Producer : HTTP POST /publish\n{event}
+Producer -> Kafka : kafkaTemplate.send("event-stream", event)
+
+Kafka -> Consumer : event-stream message
+Consumer -> DB : save(event)
+Consumer -> Consumer : log/store timestamped event
+
+Kafka -> Alerting : event-stream message
+Alerting -> Alerting : check if event.contains("ALERT")
+alt if ALERT
+    Alerting -> Alerting : log alert with timestamp
+end
+
+@enduml
