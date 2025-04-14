@@ -5,7 +5,7 @@ set -e
 NAMESPACE="event-system"
 
 # Set the KUBECONFIG environment variable
-# export KUBECONFIG=/Users/ab040616/.kube/config
+
 
 echo " Starting Kubernetes deployment for local event-processing system..."
 
