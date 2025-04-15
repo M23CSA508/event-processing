@@ -410,3 +410,6 @@ Created by the IIT Jodhpur Executive M-Tech AI 2023 Team group # 30.
 |Suvodip Som	|M23CSA533| Consumer Services  |
 |Swapnil Adak	|M23CSA534| Producer Service |
 |Anindya Bandopadhyay	|M23CSA508| Deployment |
+
+## Demo 
+[![Watch the demo video](https://img.youtube.com/vi/BtHWyn1TrCw/0.jpg)](https://youtu.be/BtHWyn1TrCw)
