@@ -30,6 +30,7 @@ The project was originally designed to leverage Oracle Cloud Infrastructure (OCI
 | OCI Streaming |	Kafka-compatible event stream backbone	| Not available in free tier |
 | OCI Functions	| Stateless alerting function (Java)	| Not available in free tier |
 | OKE	| Container orchestration (for services)	| Free tier does not support OKE usage |
+| OCI Gateway | API Gateway | Not available in free tier |
 
 ### Workaround: Local Deployment Strategy
 Due to the above limitations, we pivoted to a local environment setup that simulates the intended OCI-based architecture.
